@@ -1,0 +1,64 @@
+services:
+
+  db:
+    image: postgres:16-alpine
+    container_name: prediman_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: prediman_user
+      POSTGRES_PASSWORD: Prediman2024!
+      POSTGRES_DB: prediman_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U prediman_user -d prediman_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    container_name: prediman_api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./src:/app/src
+
+  simulator:
+    build:
+      context: .
+      dockerfile: Dockerfile.simulator
+    container_name: prediman_simulator
+    restart: unless-stopped
+    env_file:
+      - .env
+    depends_on:
+      - api
+
+  dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile.dashboard
+    container_name: prediman_dashboard
+    restart: unless-stopped
+    ports:
+      - "8501:8501"
+    env_file:
+      - .env
+    depends_on:
+      - api
+    volumes:
+      - ./src:/app/src
+
+volumes:
+  postgres_data:

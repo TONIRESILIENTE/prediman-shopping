@@ -1,0 +1,41 @@
+# .gitignore
+
+# ─────────────────────────────────────────────
+# CONCEITO: .gitignore é a primeira barreira de segurança.
+# NUNCA comite secrets, dados, ou arquivos gerados.
+# ─────────────────────────────────────────────
+
+# Secrets — regra de ouro: NUNCA no Git
+.env
+*.key
+*.pem
+secrets.json
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+env/
+*.egg-info/
+dist/
+build/
+
+# Banco de dados — nunca commitar o arquivo do banco
+*.db
+*.sqlite3
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Modelos treinados grandes (se > 100MB, usar Git LFS)
+# models/*.pkl  ← descomente se o modelo for muito grande
+
+# Logs
+*.log
