@@ -1,29 +1,52 @@
+# src/api/main.py
+# ─────────────────────────────────────────────
+# Entrypoint da API FastAPI.
+# Registra todos os routers e middlewares.
+# ─────────────────────────────────────────────
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from datetime import datetime, timezone
 
+from src.api.routers import dados, equipamentos
+
 app = FastAPI(
     title="PrediMan Shopping API",
     description="Plataforma de Manutenção Preditiva Inteligente para Shopping Centers",
-    version="0.1.0",
+    version="0.2.0",
 )
 
+# ─── CORS ───────────────────────────────────
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["*"],  # Em produção: restringir
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+# ─── Registrar Routers ──────────────────────
+# POR QUÊ: Cada router é um módulo independente.
+# Isso mantém main.py enxuto — só registra, não implementa.
+app.include_router(dados.router)
+app.include_router(equipamentos.router)
+
+
+# ─── Rotas Básicas ─────────────────────────
 
 @app.get("/")
 async def root():
     return {
         "status": "online",
         "sistema": "PrediMan Shopping",
-        "versao": "0.1.0",
+        "versao": "0.2.0",
         "timestamp": datetime.now(timezone.utc).isoformat(),
+        "endpoints": {
+            "docs": "/docs",
+            "medicao": "/api/v1/medicao",
+            "lote": "/api/v1/medicao/lote",
+            "equipamentos": "/api/v1/equipamentos",
+        },
     }
 
 
