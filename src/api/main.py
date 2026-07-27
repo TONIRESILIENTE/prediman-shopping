@@ -7,8 +7,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from datetime import datetime, timezone
-
-from src.api.routers import dados, equipamentos
+from src.api.routers import dados, equipamentos, ordens
 
 app = FastAPI(
     title="PrediMan Shopping API",
@@ -30,6 +29,7 @@ app.add_middleware(
 # Isso mantém main.py enxuto — só registra, não implementa.
 app.include_router(dados.router)
 app.include_router(equipamentos.router)
+app.include_router(ordens.router)
 
 
 # ─── Rotas Básicas ─────────────────────────

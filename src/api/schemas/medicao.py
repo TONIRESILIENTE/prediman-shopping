@@ -116,6 +116,8 @@ class MedicaoResponse(BaseModel):
     equipamento_id: str
     diagnostico: DiagnosticoResponse
     timestamp_processamento: str
+    os_id: Optional[str] = None  # NOVO: ID da OS criada
+    os_titulo: Optional[str] = None  # NOVO: título da OS
 
 
 class LoteMedicaoResponse(BaseModel):

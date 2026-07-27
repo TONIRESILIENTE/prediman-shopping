@@ -77,12 +77,34 @@ async def receber_medicao(medicao: MedicaoRequest):
             "timestamp": timestamp,
         }
 
-        return MedicaoResponse(
+        # NOVO: Se anomalia detectada, gera OS automaticamente
+        os_criada = None
+        if diag.anomalia_detectada and diag.tipo_anomalia:
+            from src.services.ordens_service import criar_ordem_servico
+            try:
+                os_criada = criar_ordem_servico(
+                    equipamento_id=medicao.equipamento_id,
+                    tipo_anomalia=diag.tipo_anomalia,
+                    severidade=diag.severidade,
+                    detalhes=diag.detalhes,
+                )
+            except ValueError:
+                # Tipo de anomalia não mapeado — registra mas não quebra
+                pass
+
+        resposta = MedicaoResponse(
             status="processado",
             equipamento_id=medicao.equipamento_id,
             diagnostico=_diagnostico_para_response(diag, timestamp),
             timestamp_processamento=timestamp,
         )
+
+        # Adiciona info da OS se foi criada
+        if os_criada:
+            resposta.os_id = os_criada.id
+            resposta.os_titulo = os_criada.titulo
+
+        return resposta
 
     except ValueError as e:
         raise HTTPException(
