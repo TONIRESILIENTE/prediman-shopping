@@ -7,7 +7,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from datetime import datetime, timezone
-from src.api.routers import dados, equipamentos, ordens, pops
+from src.api.routers import dados, equipamentos, ordens, pops, auth
 
 app = FastAPI(
     title="PrediMan Shopping API",
@@ -31,6 +31,7 @@ app.include_router(dados.router)
 app.include_router(equipamentos.router)
 app.include_router(ordens.router)
 app.include_router(pops.router)
+app.include_router(auth.router)
 
 
 # ─── Rotas Básicas ─────────────────────────
