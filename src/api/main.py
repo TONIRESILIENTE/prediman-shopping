@@ -8,6 +8,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from datetime import datetime, timezone
 from src.api.routers import dados, equipamentos, ordens, pops, auth
+from fastapi.staticfiles import StaticFiles
 
 app = FastAPI(
     title="PrediMan Shopping API",
@@ -32,6 +33,9 @@ app.include_router(equipamentos.router)
 app.include_router(ordens.router)
 app.include_router(pops.router)
 app.include_router(auth.router)
+
+# Servir PWA como arquivos estáticos
+app.mount("/pwa", StaticFiles(directory="src/pwa", html=True), name="pwa")
 
 
 # ─── Rotas Básicas ─────────────────────────
