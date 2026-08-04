@@ -3,9 +3,10 @@
 # Endpoints para consulta de POPs.
 # ─────────────────────────────────────────────
 
-from fastapi import APIRouter, HTTPException, status, Query
+from fastapi import APIRouter, HTTPException, status, Query, Depends
 from typing import List, Optional
 from pydantic import BaseModel
+from src.api.middleware.auth import obter_usuario_atual
 
 from src.services.pops_service import buscar_pop, listar_pops, POP
 
@@ -47,8 +48,9 @@ def _pop_para_response(pop: POP) -> POPResponse:
 async def listar_pops_endpoint(
     equipamento_tipo: Optional[str] = Query(
         None,
-        description="Filtrar por tipo: chiller, subestacao, bomba, iluminacao"
+        description="Filtrar por tipo: chiller, subestacao, bomba, iluminacao",
     ),
+    usuario: dict = Depends(obter_usuario_atual),
 ):
     pops = listar_pops(equipamento_tipo=equipamento_tipo)
     return [_pop_para_response(p) for p in pops]
@@ -60,7 +62,7 @@ async def listar_pops_endpoint(
     summary="Buscar POP por código",
     description="Retorna o POP completo (passos, EPIs, ferramentas, riscos) pelo código.",
 )
-async def buscar_pop_endpoint(codigo: str):
+async def buscar_pop_endpoint(codigo: str, usuario: dict = Depends(obter_usuario_atual)):
     pop = buscar_pop(codigo)
     if not pop:
         raise HTTPException(
