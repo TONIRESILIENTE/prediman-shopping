@@ -6,7 +6,7 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_USER: prediman_user
-      POSTGRES_PASSWORD: Prediman2024
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: prediman_db
     ports:
       - "5432:5432"
