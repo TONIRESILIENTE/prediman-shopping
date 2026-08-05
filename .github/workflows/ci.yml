@@ -47,9 +47,12 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: Rodar testes
+    - name: Rodar migrações e testes
       env:
         DATABASE_URL: postgresql://prediman_user:test_password@localhost:5432/prediman_test
         SECRET_KEY: chave-teste-ci
       run: |
+        # Cria as tabelas no PostgreSQL
+        python -m alembic upgrade head
+        # Roda todos os testes
         python -m pytest tests/ -v --tb=short
