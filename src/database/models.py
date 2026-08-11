@@ -1,10 +1,11 @@
+
 import uuid
 from datetime import datetime, timezone
 from sqlalchemy import (
     Column, String, Float, Integer, Boolean, DateTime,
     ForeignKey, Text, JSON
 )
-from sqlalchemy.dialects.postgresql import UUID
+
 from sqlalchemy.orm import relationship
 import enum
 
@@ -41,7 +42,7 @@ class PapelUsuario(str, enum.Enum):
 class Equipamento(Base):
     __tablename__ = "equipamentos"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(String(36), primary_key=True, default=uuid.uuid4)
     nome = Column(String(100), nullable=False, unique=True)
     tipo = Column(String(50), nullable=False)
     localizacao = Column(String(200), nullable=False)
@@ -58,8 +59,8 @@ class Equipamento(Base):
 class LeituraSensor(Base):
     __tablename__ = "leituras_sensores"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    equipamento_id = Column(UUID(as_uuid=True), ForeignKey(
+    id = Column(String(36), primary_key=True, default=uuid.uuid4)
+    equipamento_id = Column(String(36), ForeignKey(
         "equipamentos.id"), nullable=False)
     timestamp = Column(DateTime(timezone=True),
                        default=lambda: datetime.now(timezone.utc))
@@ -71,13 +72,13 @@ class LeituraSensor(Base):
 class OrdemServico(Base):
     __tablename__ = "ordens_servico"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    equipamento_id = Column(UUID(as_uuid=True), ForeignKey(
+    id = Column(String(36), primary_key=True, default=uuid.uuid4)
+    equipamento_id = Column(String(36), ForeignKey(
         "equipamentos.id"), nullable=False)
     usuario_abertura_id = Column(
-        UUID(as_uuid=True), ForeignKey("usuarios.id"), nullable=True)
+        String(36), ForeignKey("usuarios.id"), nullable=True)
     usuario_responsavel_id = Column(
-        UUID(as_uuid=True), ForeignKey("usuarios.id"), nullable=True)
+        String(36), ForeignKey("usuarios.id"), nullable=True)
     titulo = Column(String(200), nullable=False)
     descricao = Column(Text, nullable=False)
     severidade = Column(String(20), default="media")
@@ -96,8 +97,8 @@ class OrdemServico(Base):
 class POP(Base):
     __tablename__ = "pops"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    ordem_servico_id = Column(UUID(as_uuid=True), ForeignKey(
+    id = Column(String(36), primary_key=True, default=uuid.uuid4)
+    ordem_servico_id = Column(String(36), ForeignKey(
         "ordens_servico.id"), unique=True, nullable=True)
     codigo = Column(String(20), unique=True, nullable=False)
     titulo = Column(String(200), nullable=False)
@@ -115,7 +116,7 @@ class POP(Base):
 class Usuario(Base):
     __tablename__ = "usuarios"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(String(36), primary_key=True, default=uuid.uuid4)
     email = Column(String(255), unique=True, nullable=False, index=True)
     nome = Column(String(100), nullable=False)
     senha_hash = Column(String(255), nullable=False)

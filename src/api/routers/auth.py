@@ -6,6 +6,8 @@
 
 from fastapi import APIRouter, HTTPException, status, Depends
 from pydantic import BaseModel, EmailStr, Field
+from sqlalchemy.orm import Session
+from src.database.connection import get_db
 
 from src.services.auth_service import registrar_usuario, autenticar_usuario
 from src.api.middleware.auth import obter_usuario_atual
@@ -60,17 +62,18 @@ class MensagemResponse(BaseModel):
     status_code=status.HTTP_201_CREATED,
     summary="Registrar novo usuário",
 )
-async def registrar(body: RegistroRequest):
+async def registrar(body: RegistroRequest, db: Session = Depends(get_db)):
     """Cria uma nova conta de usuário."""
     try:
         usuario = registrar_usuario(
+            db=db,
             email=body.email,
             senha=body.senha,
             nome=body.nome,
             papel=body.papel,
         )
         return MensagemResponse(
-            mensagem=f"Usuário '{usuario['nome']}' registrado com sucesso."
+            mensagem=f"Usuário '{usuario.nome}' registrado com sucesso."
         )
     except ValueError as e:
         raise HTTPException(
@@ -85,9 +88,9 @@ async def registrar(body: RegistroRequest):
     summary="Login",
     description="Autentica usuário e retorna token JWT para usar nas rotas protegidas.",
 )
-async def login(body: LoginRequest):
+async def login(body: LoginRequest, db: Session = Depends(get_db)):
     """Faz login e retorna token de acesso."""
-    resultado = autenticar_usuario(email=body.email, senha=body.senha)
+    resultado = autenticar_usuario(db=db, email=body.email, senha=body.senha)
 
     if resultado is None:
         raise HTTPException(
@@ -104,12 +107,11 @@ async def login(body: LoginRequest):
     response_model=UsuarioResponse,
     summary="Dados do usuário logado",
 )
-async def me(usuario: dict = Depends(obter_usuario_atual)):
-    """Retorna os dados do usuário autenticado (requer token)."""
+async def me(usuario=Depends(obter_usuario_atual)):
     return UsuarioResponse(
-        id=usuario["id"],
-        email=usuario["email"],
-        nome=usuario["nome"],
-        papel=usuario["papel"],
-        ativo=usuario["ativo"],
+        id=str(usuario.id),
+        email=usuario.email,
+        nome=usuario.nome,
+        papel=usuario.papel,
+        ativo=usuario.ativo,
     )

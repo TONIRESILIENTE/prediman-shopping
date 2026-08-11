@@ -12,6 +12,9 @@
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from typing import Optional
+from sqlalchemy.orm import Session
+from src.database.connection import get_db
+from src.database.models import Usuario
 
 from src.services.auth_service import decodificar_token, buscar_usuario_por_email
 
@@ -22,47 +25,22 @@ security = HTTPBearer()
 
 async def obter_usuario_atual(
     credentials: HTTPAuthorizationCredentials = Depends(security),
-) -> dict:
-    """
-    Dependency que protege rotas.
-
-    Uso:
-        @app.get("/rota-protegida")
-        async def rota(usuario: dict = Depends(obter_usuario_atual)):
-            ...
-
-    Fluxo:
-    1. Extrai token do header Authorization
-    2. Decodifica e valida assinatura + expiração
-    3. Busca usuário no banco
-    4. Retorna usuário (disponível na rota)
-    5. Se qualquer passo falhar → 401 Unauthorized
-    """
+    db: Session = Depends(get_db),
+) -> Usuario:
     token = credentials.credentials
-
-    # Decodifica token
     payload = decodificar_token(token)
     if payload is None:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Token inválido ou expirado. Faça login novamente.",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+            status_code=401, detail="Token inválido ou expirado.")
 
-    # Busca usuário
     email = payload.get("sub")
     if email is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Token malformado: email não encontrado.",
-        )
+        raise HTTPException(status_code=401, detail="Token malformado.")
 
-    usuario = buscar_usuario_por_email(email)
-    if usuario is None or not usuario.get("ativo"):
+    usuario = buscar_usuario_por_email(db, email)
+    if usuario is None:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Usuário não encontrado ou inativo.",
-        )
+            status_code=401, detail="Usuário não encontrado ou inativo.")
 
     return usuario
 
