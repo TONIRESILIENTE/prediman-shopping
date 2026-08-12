@@ -8,6 +8,7 @@ from typing import List, Optional
 from pydantic import BaseModel
 from src.api.middleware.auth import obter_usuario_atual
 
+
 from src.services.pops_service import buscar_pop, listar_pops, POP
 
 router = APIRouter(prefix="/api/v1", tags=["POPs"])
