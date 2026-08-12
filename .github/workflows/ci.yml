@@ -1,11 +1,3 @@
-# .github/workflows/ci.yml
-# ─────────────────────────────────────────────
-# CONCEITO: CI (Continuous Integration).
-# Toda vez que um commit é enviado para o GitHub,
-# este workflow roda automaticamente os testes.
-# Se algum teste falhar, o commit é marcado como ❌.
-# ─────────────────────────────────────────────
-
 name: Testes
 
 on:
@@ -52,7 +44,5 @@ jobs:
         DATABASE_URL: postgresql://prediman_user:test_password@localhost:5432/prediman_test
         SECRET_KEY: chave-teste-ci
       run: |
-        # Cria as tabelas no PostgreSQL
         python -m alembic upgrade head
-        # Roda todos os testes
         python -m pytest tests/ -v --tb=short
