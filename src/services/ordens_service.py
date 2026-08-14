@@ -148,6 +148,7 @@ def criar_ordem_servico(
         severidade=severidade,
         status="aberta",
         diagnostico_ml=tipo_anomalia,
+        pop_codigo=template["pop_codigo"],
     )
 
     db.add(os)

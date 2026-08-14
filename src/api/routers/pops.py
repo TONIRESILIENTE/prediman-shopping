@@ -51,7 +51,7 @@ async def listar_pops_endpoint(
         None,
         description="Filtrar por tipo: chiller, subestacao, bomba, iluminacao",
     ),
-    usuario: dict = Depends(obter_usuario_atual),
+
 ):
     pops = listar_pops(equipamento_tipo=equipamento_tipo)
     return [_pop_para_response(p) for p in pops]
@@ -63,7 +63,7 @@ async def listar_pops_endpoint(
     summary="Buscar POP por código",
     description="Retorna o POP completo (passos, EPIs, ferramentas, riscos) pelo código.",
 )
-async def buscar_pop_endpoint(codigo: str, usuario: dict = Depends(obter_usuario_atual)):
+async def buscar_pop_endpoint(codigo: str):
     pop = buscar_pop(codigo)
     if not pop:
         raise HTTPException(

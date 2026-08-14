@@ -92,6 +92,7 @@ class OrdemServico(Base):
 
     equipamento = relationship("Equipamento", back_populates="ordens_servico")
     pop = relationship("POP", back_populates="ordem_servico", uselist=False)
+    pop_codigo = Column(String(20), nullable=True)
 
 
 class POP(Base):

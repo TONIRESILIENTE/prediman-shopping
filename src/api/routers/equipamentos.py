@@ -63,6 +63,6 @@ EQUIPAMENTOS_CADASTRO = [
     summary="Listar equipamentos",
     description="Retorna a lista de todos os equipamentos monitorados pelo sistema.",
 )
-async def listar_equipamentos(usuario: dict = Depends(obter_usuario_atual)):
+async def listar_equipamentos():
     """Retorna todos os equipamentos cadastrados."""
     return [EquipamentoResponse(**eq) for eq in EQUIPAMENTOS_CADASTRO]

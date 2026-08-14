@@ -63,9 +63,11 @@ st.markdown("---")
 # ─── Dados da API ────────────────────────────
 
 
-@st.cache_data(ttl=2)  # Cache de 2 segundos
+@st.cache_data(ttl=2)
 def carregar_dados():
     """Busca dados da API para o dashboard."""
+    headers = {"Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkYXNoQHByZWRpbWFuLmNvbSIsInBhcGVsIjoiYWRtaW4iLCJub21lIjoiRGFzaGJvYXJkIiwiZXhwIjoyMTAxOTAyNjI4LCJpYXQiOjE3ODY1NDI2Mjh9.0z0rphfFCNMn_Ix6eS2ofdMXykfGkiNkj211BJIn-1k"}
+
     dados = {
         "equipamentos": [],
         "ordens": [],
@@ -74,18 +76,16 @@ def carregar_dados():
     }
 
     try:
-        # Equipamentos
-        resp = requests.get(f"{API_URL}/equipamentos", timeout=5)
+        resp = requests.get(f"{API_URL}/equipamentos",
+                            timeout=5, headers=headers)
         if resp.status_code == 200:
             dados["equipamentos"] = resp.json()
 
-        # Ordens de serviço
-        resp = requests.get(f"{API_URL}/ordens", timeout=5)
+        resp = requests.get(f"{API_URL}/ordens", timeout=5, headers=headers)
         if resp.status_code == 200:
             dados["ordens"] = resp.json()
-
     except:
-        st.warning("Não foi possível conectar à API. Usando dados de exemplo.")
+        st.warning("Não foi possível conectar à API.")
 
     return dados
 

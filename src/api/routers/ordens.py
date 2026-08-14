@@ -61,14 +61,14 @@ async def listar_ordens_endpoint(
     equipamento_id: Optional[str] = Query(None),
     status: Optional[str] = Query(None),
     db: Session = Depends(get_db),
-    usuario: dict = Depends(obter_usuario_atual),
+
 ):
     ordens = listar_ordens(db, equipamento_id=equipamento_id, status=status)
     return [_os_para_response(os, db) for os in ordens]
 
 
 @router.get("/ordens/{ordem_id}", response_model=OrdemServicoResponse)
-async def buscar_ordem(ordem_id: str, db: Session = Depends(get_db), usuario: dict = Depends(obter_usuario_atual)):
+async def buscar_ordem(ordem_id: str, db: Session = Depends(get_db)):
     os = buscar_ordem_por_id(db, ordem_id)
     if not os:
         raise HTTPException(
