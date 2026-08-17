@@ -99,10 +99,24 @@ function renderizarDetalhes() {
   const os = ordemSelecionada;
   const pop = os.pop_codigo ? popCache[os.pop_codigo] : null;
   let html = '<div class="detalhes"><h2>' + os.titulo + '</h2><div class="info-grid"><div class="info-item"><div class="label">Equipamento</div><div class="value">' + os.equipamento_id + '</div></div><div class="info-item"><div class="label">Severidade</div><div class="value" style="color:var(--' + (os.severidade === 'critica' || os.severidade === 'alta' ? 'danger' : 'warning') + ')">' + os.severidade.toUpperCase() + '</div></div><div class="info-item"><div class="label">Status</div><div class="value">' + formatarStatus(os.status) + '</div></div><div class="info-item"><div class="label">POP</div><div class="value">' + (os.pop_codigo || 'N/A') + '</div></div></div><p style="font-size:13px;color:var(--text-secondary)">' + os.descricao + '</p>';
+  
   if (pop) {
+    // Avatar + botão de narração
+    html += '<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">';
+    html += '<div style="font-size:64px">🧑‍🔧</div>';
+    html += '<div><button class="btn btn-iniciar" onclick="narrarPOP(popCache[\'' + pop.codigo + '\'])">🔊 Ouvir POP</button></div>';
+    html += '</div>';
+    
+    // Animação Lottie
+    if (pop.animacao_url) {
+      html += '<div id="animacao-pop" style="width:100%;height:180px;margin-bottom:12px"></div>';
+    }
+    
     html += '<div class="pop-section"><h3>📖 Procedimento (' + pop.codigo + ')</h3><p style="font-size:12px;color:var(--text-secondary);margin-bottom:8px">⏱️ ' + pop.tempo_estimado_minutos + ' min</p><h4 style="font-size:12px;margin-top:8px">🦺 EPIs:</h4><ul>' + pop.epis.map(e => '<li><span class="emoji">🦺</span>' + e + '</li>').join('') + '</ul><h4 style="font-size:12px;margin-top:8px">🔧 Ferramentas:</h4><ul>' + pop.ferramentas.map(f => '<li><span class="emoji">🔧</span>' + f + '</li>').join('') + '</ul><h4 style="font-size:12px;margin-top:8px">📋 Passos:</h4><ul>' + pop.passos.map(p => '<li><span class="emoji">▶️</span>' + p + '</li>').join('') + '</ul><h4 style="font-size:12px;margin-top:8px">⚠️ Riscos:</h4><ul class="riscos">' + pop.riscos.map(r => '<li><span class="emoji">⚠️</span>' + r + '</li>').join('') + '</ul></div>';
   }
+  
   html += '</div><div class="acoes"><button class="btn btn-voltar" onclick="voltarLista()">← Voltar</button>';
+  
   if (os.status === 'aberta') {
     html += '<button class="btn btn-iniciar" onclick="atualizarStatus(\'' + os.id + '\', \'em_andamento\')">▶ Iniciar</button>';
   } else if (os.status === 'em_andamento') {
@@ -112,8 +126,20 @@ function renderizarDetalhes() {
     html += '<button class="btn btn-iniciar" onclick="atualizarStatus(\'' + os.id + '\', \'em_andamento\')">▶ Retomar</button>';
     html += '<button class="btn btn-concluir" onclick="atualizarStatus(\'' + os.id + '\', \'concluida\')">✓ Concluir</button>';
   }
+  
   html += '</div>';
   document.getElementById('app').innerHTML = html;
+
+  // Inicia a animação Lottie
+  if (pop && pop.animacao_url && window.lottie) {
+    window.lottie.loadAnimation({
+      container: document.getElementById('animacao-pop'),
+      renderer: 'svg',
+      loop: true,
+      autoplay: true,
+      path: pop.animacao_url,
+    });
+  }
 }
 
 function voltarLista() {
@@ -152,6 +178,30 @@ function mostrarToast(mensagem, erro) {
   toast.textContent = mensagem;
   document.body.appendChild(toast);
   setTimeout(function() { toast.remove(); }, 2000);
+}
+
+function narrarPOP(pop) {
+  if (!('speechSynthesis' in window)) {
+    mostrarToast('❌ Narração não suportada neste aparelho', true);
+    return;
+  }
+  
+  // Cancela narração anterior
+  window.speechSynthesis.cancel();
+  
+  // Monta texto para narrar
+  let texto = 'Procedimento: ' + pop.titulo + '. ';
+  texto += 'Tempo estimado: ' + pop.tempo_estimado_minutos + ' minutos. ';
+  texto += 'EPIs obrigatórios: ' + pop.epis.join(', ') + '. ';
+  texto += 'Passos: ' + pop.passos.join('. ') + '. ';
+  texto += 'Riscos: ' + pop.riscos.join('. ');
+  
+  const utterance = new SpeechSynthesisUtterance(texto);
+  utterance.lang = 'pt-BR';
+  utterance.rate = 0.9;
+  
+  window.speechSynthesis.speak(utterance);
+  mostrarToast('🔊 Narrando POP...');
 }
 
 document.addEventListener('DOMContentLoaded', function() {

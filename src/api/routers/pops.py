@@ -24,6 +24,7 @@ class POPResponse(BaseModel):
     passos: list
     riscos: list
     observacoes: str
+    animacao_url: str = ""
 
 
 def _pop_para_response(pop: POP) -> POPResponse:
@@ -37,6 +38,7 @@ def _pop_para_response(pop: POP) -> POPResponse:
         passos=pop.passos,
         riscos=pop.riscos,
         observacoes=pop.observacoes,
+        animacao_url=pop.animacao_url,
     )
 
 

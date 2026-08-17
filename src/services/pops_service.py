@@ -30,6 +30,7 @@ class POP:
     passos: list = field(default_factory=list)
     riscos: list = field(default_factory=list)
     observacoes: str = ""
+    animacao_url: str = ""
 
 
 # ─── BASE DE POPs ────────────────────────────
@@ -82,7 +83,8 @@ POPS: Dict[str, POP] = {
             "Ruído elevado durante operação",
             "Peças móveis (ventilador do condensador)",
         ],
-        observacoes="Se vibração entre 5.0 e 7.0 mm/s: monitorar tendência por 48h antes de programar troca."
+        observacoes="Se vibração entre 5.0 e 7.0 mm/s: monitorar tendência por 48h antes de programar troca.",
+        animacao_url="/pwa/animations/chiller-vibracao.json",
     ),
 
     "POP-CHL-002": POP(
