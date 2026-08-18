@@ -3,7 +3,7 @@ from fastapi import APIRouter, HTTPException, status, Query, Depends
 from typing import List, Optional
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
-from src.api.middleware.auth import obter_usuario_atual, exigir_papel
+from src.api.middleware.auth import obter_usuario_atual
 
 from src.database.connection import get_db
 from src.services.ordens_service import (
@@ -77,7 +77,7 @@ async def buscar_ordem(ordem_id: str, db: Session = Depends(get_db)):
 
 
 @router.patch("/ordens/{ordem_id}/status", response_model=OrdemServicoResponse)
-async def atualizar_status_endpoint(ordem_id: str, body: StatusUpdateRequest, db: Session = Depends(get_db), usuario: dict = Depends(exigir_papel("tecnico", "gestor", "admin"))):
+async def atualizar_status_endpoint(ordem_id: str, body: StatusUpdateRequest, db: Session = Depends(get_db)):
     status_permitidos = ["aberta", "em_andamento", "pausada", "concluida"]
     if body.novo_status not in status_permitidos:
         raise HTTPException(

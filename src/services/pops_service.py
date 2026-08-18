@@ -123,7 +123,9 @@ POPS: Dict[str, POP] = {
             "Alta pressão no circuito (até 350 PSI)",
             "Choque elétrico",
         ],
-        observacoes="Certificação NR-13 (vasos de pressão) exigida para intervenção no circuito de gás."
+        observacoes="Certificação NR-13 (vasos de pressão) exigida para intervenção no circuito de gás.",
+        animacao_url="/pwa/animations/chiller-vibracao.json",
+
     ),
 
     "POP-CHL-003": POP(
@@ -161,7 +163,8 @@ POPS: Dict[str, POP] = {
             "Arco elétrico (bornes com mau contato)",
             "Queimadura (superfícies quentes)",
         ],
-        observacoes="Medição com equipamento energizado: obrigatório uso de luva isolante + acompanhante habilitado (NR-10)."
+        observacoes="Medição com equipamento energizado: obrigatório uso de luva isolante + acompanhante habilitado (NR-10).",
+        animacao_url="/pwa/animations/chiller-vibracao.json",
     ),
 
     # ═══════════════════════════════════════════
@@ -202,7 +205,8 @@ POPS: Dict[str, POP] = {
             "Explosão de capacitor (curto-circuito interno)",
             "Arco elétrico",
         ],
-        observacoes="Serviço em subestação: obrigatório dupla de trabalho (NR-10). Capacitores mantêm carga após desligamento — aguardar descarga."
+        observacoes="Serviço em subestação: obrigatório dupla de trabalho (NR-10). Capacitores mantêm carga após desligamento — aguardar descarga.",
+        animacao_url="/pwa/animations/subestacao-eletrica.json",
     ),
 
     "POP-SUB-002": POP(
@@ -239,7 +243,8 @@ POPS: Dict[str, POP] = {
             "Queda parcial de energia durante manobra",
             "Arco elétrico",
         ],
-        observacoes="Coordenar com operação do shopping: desligamento de circuitos pode afetar lojas. Programar em horário de menor movimento."
+        observacoes="Coordenar com operação do shopping: desligamento de circuitos pode afetar lojas. Programar em horário de menor movimento.",
+        animacao_url="/pwa/animations/subestacao-eletrica.json",
     ),
 
     "POP-SUB-003": POP(
@@ -271,7 +276,8 @@ POPS: Dict[str, POP] = {
             "Risco elétrico (medição em equipamento energizado)",
             "Queda de tensão pode danificar equipamentos eletrônicos",
         ],
-        observacoes="Oscilações podem ser da rede da concessionária — registrar horários para acionamento formal."
+        observacoes="Oscilações podem ser da rede da concessionária — registrar horários para acionamento formal.",
+        animacao_url="/pwa/animations/subestacao-eletrica.json",
     ),
 
     "POP-SUB-004": POP(
@@ -306,7 +312,8 @@ POPS: Dict[str, POP] = {
             "Arco elétrico (conexão frouxa pode abrir arco)",
             "Queimadura por contato",
         ],
-        observacoes="Barramentos acima de 70°C: risco de incêndio por ignição de isolantes próximos. Ação IMEDIATA."
+        observacoes="Barramentos acima de 70°C: risco de incêndio por ignição de isolantes próximos. Ação IMEDIATA.",
+        animacao_url="/pwa/animations/subestacao-eletrica.json",
     ),
 
     # ═══════════════════════════════════════════
@@ -349,7 +356,8 @@ POPS: Dict[str, POP] = {
             "Choque elétrico (bomba submersa)",
             "Atmosfera potencialmente tóxica (gases do esgoto)",
         ],
-        observacoes="Poço de recalque é espaço confinado: obrigatório uso de medidor de gases + dupla de trabalho + resgate disponível (NR-33)."
+        observacoes="Poço de recalque é espaço confinado: obrigatório uso de medidor de gases + dupla de trabalho + resgate disponível (NR-33).",
+        animacao_url="/pwa/animations/bomba-agua.json",
     ),
 
     "POP-BOM-002": POP(
@@ -384,7 +392,8 @@ POPS: Dict[str, POP] = {
             "Jato d'água sob pressão (desconexão acidental de manômetro)",
             "Espaço confinado (dependendo da localização da tubulação)",
         ],
-        observacoes="Obstruções recorrentes: avaliar instalação de filtro Y ou grade na entrada do poço."
+        observacoes="Obstruções recorrentes: avaliar instalação de filtro Y ou grade na entrada do poço.",
+        animacao_url="/pwa/animations/bomba-agua.json",
     ),
 
     "POP-BOM-003": POP(
@@ -420,7 +429,8 @@ POPS: Dict[str, POP] = {
             "Choque elétrico (bomba danificada pode ter fuga para água)",
             "Alagamento se bomba ficar desligada e poço voltar a encher (verificar extravasor)",
         ],
-        observacoes="Bomba operando a seco queima em menos de 2 minutos. Tempo de resposta CRÍTICO. Acionar supervisão imediata."
+        observacoes="Bomba operando a seco queima em menos de 2 minutos. Tempo de resposta CRÍTICO. Acionar supervisão imediata.",
+        animacao_url="/pwa/animations/bomba-agua.json",
     ),
 
     "POP-BOM-004": POP(
@@ -454,7 +464,8 @@ POPS: Dict[str, POP] = {
             "Peças rotativas (eixo exposto)",
             "Ruído elevado",
         ],
-        observacoes="Vibração persistente após correções: avaliar balanceamento dinâmico do rotor em oficina especializada."
+        observacoes="Vibração persistente após correções: avaliar balanceamento dinâmico do rotor em oficina especializada.",
+        animacao_url="/pwa/animations/bomba-agua.json",
     ),
 
     # ═══════════════════════════════════════════
@@ -492,7 +503,8 @@ POPS: Dict[str, POP] = {
             "Choque elétrico (QDL energizado — 220V/380V)",
             "Queda de iluminação durante teste (trabalhar com lanterna)",
         ],
-        observacoes="Timer mecânico (analógico): verificar se disco não está travado. Timer digital: verificar bateria interna de memória."
+        observacoes="Timer mecânico (analógico): verificar se disco não está travado. Timer digital: verificar bateria interna de memória.",
+        animacao_url="/pwa/animations/iluminacao-lampada.json",
     ),
 
     "POP-ILU-002": POP(
@@ -529,7 +541,8 @@ POPS: Dict[str, POP] = {
             "Queda de altura (escada/teto)",
             "Queimadura (lâmpada recém-apagada quente)",
         ],
-        observacoes="Se > 20% das lâmpadas queimadas simultaneamente: verificar sobretensão no circuito (possível problema no neutro)."
+        observacoes="Se > 20% das lâmpadas queimadas simultaneamente: verificar sobretensão no circuito (possível problema no neutro).",
+        animacao_url="/pwa/animations/iluminacao-lampada.json"
     ),
 
     "POP-ILU-003": POP(
@@ -562,7 +575,8 @@ POPS: Dict[str, POP] = {
             "Choque elétrico (medição em circuito energizado)",
             "Trabalho em altura (dependendo do ponto de medição)",
         ],
-        observacoes="Lâmpadas LED degradam gradualmente (diferente das fluorescentes que queimam). Vida útil típica: 25.000-50.000h. Verificar data de instalação."
+        observacoes="Lâmpadas LED degradam gradualmente (diferente das fluorescentes que queimam). Vida útil típica: 25.000-50.000h. Verificar data de instalação.",
+        animacao_url="/pwa/animations/iluminacao-lampada.json",
     ),
 }
 
