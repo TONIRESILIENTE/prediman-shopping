@@ -8,6 +8,56 @@ const API_URL = window.location.hostname === 'localhost'
   ? 'http://localhost:8000/api/v1'
   : '/api/v1';
 
+  // Token JWT
+let token = null;
+
+function mostrarLogin() {
+  document.getElementById('login-screen').style.display = 'block';
+  document.getElementById('app').innerHTML = '';
+  document.getElementById('btn-logout').style.display = 'none';
+}
+
+async function fazerLogin() {
+  const email = document.getElementById('login-email').value;
+  const senha = document.getElementById('login-senha').value;
+  const erroEl = document.getElementById('login-erro');
+  
+  erroEl.style.display = 'none';
+  
+  try {
+    const resp = await fetch(API_URL + '/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email, senha: senha }),
+    });
+    
+    if (!resp.ok) {
+      erroEl.textContent = 'Email ou senha incorretos';
+      erroEl.style.display = 'block';
+      return;
+    }
+    
+    const data = await resp.json();
+    token = data.access_token;
+    
+    // Esconde login e mostra app
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('btn-logout').style.display = 'block';
+    
+    carregarOrdens();
+  } catch (err) {
+    erroEl.textContent = 'Erro de conexão';
+    erroEl.style.display = 'block';
+  }
+}
+
+function fazerLogout() {
+  token = null;
+  localStorage.removeItem('prediman_token');
+  ordens = [];
+  mostrarLogin();
+}
+
 // Estado da aplicação
 let ordens = [];
 let ordemSelecionada = null;
@@ -32,14 +82,13 @@ function atualizarStatusConexao() {
 
 async function apiFetch(path, options = {}) {
   const url = API_URL + path;
+  const headers = { 'Content-Type': 'application/json' };
+  if (token) headers['Authorization'] = 'Bearer ' + token;
+  
   try {
     const resp = await fetch(url, {
       ...options,
-      headers: { 
-        'Content-Type': 'application/json', 
-        'Authorization': 'Bearer ' + DASHBOARD_TOKEN,
-        ...options.headers 
-      },
+      headers: { ...headers, ...options.headers },
     });
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
     return await resp.json();
@@ -206,5 +255,15 @@ function narrarPOP(pop) {
 
 document.addEventListener('DOMContentLoaded', function() {
   atualizarStatusConexao();
-  carregarOrdens();
+  
+  // Verifica se há token salvo
+  const tokenSalvo = localStorage.getItem('prediman_token');
+  if (tokenSalvo) {
+    token = tokenSalvo;
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('btn-logout').style.display = 'block';
+    carregarOrdens();
+  } else {
+    mostrarLogin();
+  }
 });

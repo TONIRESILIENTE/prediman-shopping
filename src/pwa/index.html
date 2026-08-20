@@ -10,21 +10,51 @@
   <link rel="stylesheet" href="/pwa/style.css">
   <title>PrediMan Shopping</title>
 </head>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
 <body>
   <header>
     <span class="logo">🏢</span>
     <h1>PrediMan</h1>
     <span class="status" id="status-conexao">🟢 Online</span>
+    <button id="btn-logout" class="btn btn-voltar" style="display:none;margin-left:auto;width:auto" onclick="fazerLogout()">Sair</button>
   </header>
   
   <main id="app">
     <div class="loading">
       <div class="spinner"></div>
-      <p style="margin-top:12px;color:var(--text-secondary)">Carregando ordens...</p>
+      <p style="margin-top:12px;color:var(--text-secondary)">Carregando...</p>
     </div>
   </main>
   
+  <!-- Tela de Login -->
+  <div id="login-screen" style="display:none;padding:40px 20px">
+    <div style="text-align:center;margin-bottom:24px">
+      <div style="font-size:64px">🏢</div>
+      <h2 style="margin-top:12px">PrediMan Shopping</h2>
+      <p style="color:var(--text-secondary);font-size:14px">Faça login para acessar as OS</p>
+    </div>
+    
+    <div style="max-width:400px;margin:0 auto">
+      <div style="margin-bottom:12px">
+        <label style="font-size:12px;color:var(--text-secondary)">Email</label>
+        <input type="email" id="login-email" placeholder="tecnico@prediman.com" 
+               style="width:100%;padding:12px;border-radius:8px;border:none;background:var(--bg-card);color:var(--text-primary);font-size:14px">
+      </div>
+      
+      <div style="margin-bottom:16px">
+        <label style="font-size:12px;color:var(--text-secondary)">Senha</label>
+        <input type="password" id="login-senha" placeholder="Senha" 
+               style="width:100%;padding:12px;border-radius:8px;border:none;background:var(--bg-card);color:var(--text-primary);font-size:14px">
+      </div>
+      
+      <button class="btn btn-iniciar" style="width:100%;padding:14px" onclick="fazerLogin()">
+        🔐 Entrar
+      </button>
+      
+      <p id="login-erro" style="color:var(--danger);font-size:12px;margin-top:12px;text-align:center;display:none"></p>
+    </div>
+  </div>
+  
   <script src="/pwa/app.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
 </body>
 </html>
