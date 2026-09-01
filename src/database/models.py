@@ -125,3 +125,28 @@ class Usuario(Base):
     ativo = Column(Boolean, default=True)
     criado_em = Column(DateTime(timezone=True),
                        default=lambda: datetime.now(timezone.utc))
+
+
+class PassoExecucao(Base):
+    __tablename__ = "passos_execucao"
+
+    id = Column(String(36), primary_key=True, default=uuid.uuid4)
+    ordem_servico_id = Column(String(36), ForeignKey(
+        "ordens_servico.id"), nullable=False)
+    pop_codigo = Column(String(20), nullable=True)
+    numero_passo = Column(Integer, nullable=False)
+    descricao = Column(Text, nullable=False)
+    concluido = Column(Boolean, default=False)
+    foto_url = Column(String(500), nullable=True)
+    timestamp_conclusao = Column(DateTime(timezone=True), nullable=True)
+
+    """
+   Tabela de execução de passos da POP.
+
+   Cada linha = um passo de um procedimento 
+   que o técnico executou (ou precisa executar).
+
+   ANALOGIA: É o checklist de segurança que o técnico
+   assina conforme executa cada etapa.
+
+   """

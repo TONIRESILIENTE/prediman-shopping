@@ -83,7 +83,14 @@ async def atualizar_status_endpoint(ordem_id: str, body: StatusUpdateRequest, db
         raise HTTPException(
             status_code=422, detail=f"Status inválido. Permitidos: {status_permitidos}")
 
-    os = atualizar_status(db, ordem_id, body.novo_status)
+    try:
+        os = atualizar_status(db, ordem_id, body.novo_status)
+    except ValueError as e:
+        raise HTTPException(
+            status_code=422,
+            detail=str(e),
+        )
+
     if not os:
         raise HTTPException(
             status_code=404, detail=f"OS '{ordem_id}' não encontrada.")

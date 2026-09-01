@@ -62,6 +62,7 @@ function fazerLogout() {
 let ordens = [];
 let ordemSelecionada = null;
 let popCache = {};
+let passosExecucao = {};
 let online = navigator.onLine;
 
 // Service Worker
@@ -133,6 +134,8 @@ function formatarStatus(status) {
 async function abrirOS(id) {
   ordemSelecionada = ordens.find(o => o.id === id);
   if (!ordemSelecionada) return;
+
+  await carregarPassos(id);
   renderizarDetalhes();
   if (ordemSelecionada.pop_codigo && !popCache[ordemSelecionada.pop_codigo]) {
     try {
@@ -162,6 +165,41 @@ function renderizarDetalhes() {
     }
     
     html += '<div class="pop-section"><h3>📖 Procedimento (' + pop.codigo + ')</h3><p style="font-size:12px;color:var(--text-secondary);margin-bottom:8px">⏱️ ' + pop.tempo_estimado_minutos + ' min</p><h4 style="font-size:12px;margin-top:8px">🦺 EPIs:</h4><ul>' + pop.epis.map(e => '<li><span class="emoji">🦺</span>' + e + '</li>').join('') + '</ul><h4 style="font-size:12px;margin-top:8px">🔧 Ferramentas:</h4><ul>' + pop.ferramentas.map(f => '<li><span class="emoji">🔧</span>' + f + '</li>').join('') + '</ul><h4 style="font-size:12px;margin-top:8px">📋 Passos:</h4><ul>' + pop.passos.map(p => '<li><span class="emoji">▶️</span>' + p + '</li>').join('') + '</ul><h4 style="font-size:12px;margin-top:8px">⚠️ Riscos:</h4><ul class="riscos">' + pop.riscos.map(r => '<li><span class="emoji">⚠️</span>' + r + '</li>').join('') + '</ul></div>';
+  }
+    // Checklist de execução
+  if (passosExecucao[os.id]) {
+    const passos = passosExecucao[os.id];
+    const concluidos = passos.filter(p => p.concluido).length;
+    const percentual = Math.round((concluidos / passos.length) * 100);
+    
+    html += '<div class="pop-section">';
+    html += '<h3>✅ Checklist de Execução</h3>';
+    html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">';
+    html += '<div style="flex:1;height:8px;background:var(--bg-primary);border-radius:4px;overflow:hidden">';
+    html += '<div style="width:' + percentual + '%;height:100%;background:var(--success);border-radius:4px"></div>';
+    html += '</div>';
+    html += '<span style="font-size:12px;font-weight:600">' + percentual + '%</span>';
+    html += '</div>';
+    
+    passos.forEach(p => {
+      const statusIcon = p.concluido ? '✅' : '⏳';
+      const bgColor = p.concluido ? 'rgba(46,204,113,0.1)' : 'transparent';
+      
+      html += '<div style="padding:10px;margin-bottom:8px;border-radius:8px;background:' + bgColor + '">';
+      html += '<div style="display:flex;align-items:center;gap:8px">';
+      html += '<span>' + statusIcon + '</span>';
+      html += '<span style="flex:1;font-size:13px">' + p.numero_passo + '. ' + p.descricao + '</span>';
+      if (!p.concluido) {
+        html += '<button class="btn btn-iniciar" style="width:auto;padding:6px 12px;font-size:11px" onclick="marcarPasso(\'' + p.id + '\', \'' + os.id + '\')">Marcar</button>';
+      }
+      html += '</div>';
+      if (p.foto_url) {
+        html += '<div style="margin-top:6px;font-size:11px;color:var(--success)">📸 Foto anexada</div>';
+      }
+      html += '</div>';
+    });
+    
+    html += '</div>';
   }
   
   html += '</div><div class="acoes"><button class="btn btn-voltar" onclick="voltarLista()">← Voltar</button>';
@@ -228,6 +266,26 @@ function mostrarToast(mensagem, erro) {
   document.body.appendChild(toast);
   setTimeout(function() { toast.remove(); }, 2000);
 }
+
+async function carregarPassos(ordemId) {
+  try {
+    passosExecucao[ordemId] = await apiFetch('/os/' + ordemId + '/passos');
+  } catch (e) {
+    passosExecucao[ordemId] = [];
+  }
+}
+
+async function gerarPassos(ordemId) {
+  try {
+    await apiFetch('/os/' + ordemId + '/passos/gerar', { method: 'POST' });
+    await carregarPassos(ordemId);
+    renderizarDetalhes();
+  } catch (e) {
+    mostrarToast('Erro ao gerar passos', true);
+  }
+}
+
+
 
 function narrarPOP(pop) {
   if (!('speechSynthesis' in window)) {

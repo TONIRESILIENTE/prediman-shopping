@@ -7,7 +7,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from datetime import datetime, timezone
-from src.api.routers import dados, equipamentos, ordens, pops, auth
+from src.api.routers import dados, equipamentos, ordens, pops, auth, passos
 from fastapi.staticfiles import StaticFiles
 
 app = FastAPI(
@@ -33,6 +33,7 @@ app.include_router(equipamentos.router)
 app.include_router(ordens.router)
 app.include_router(pops.router)
 app.include_router(auth.router)
+app.include_router(passos.router)
 
 # Servir PWA como arquivos estáticos
 app.mount("/pwa", StaticFiles(directory="src/pwa", html=True), name="pwa")

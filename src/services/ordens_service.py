@@ -154,6 +154,14 @@ def criar_ordem_servico(
     db.add(os)
     db.commit()
     db.refresh(os)
+    # Gera passos de execução se o POP tiver passos
+    from src.services.pops_service import buscar_pop
+    from src.services.passos_service import criar_passos_da_pop
+
+    pop = buscar_pop(template["pop_codigo"]) if template.get(
+        "pop_codigo") else None
+    if pop:
+        criar_passos_da_pop(db, str(os.id), pop.codigo, pop.passos)
 
     return os
 
@@ -192,11 +200,21 @@ def buscar_ordem_por_id(db: Session, ordem_id: str) -> Optional[OrdemServicoMode
 def atualizar_status(db: Session, ordem_id: str, novo_status: str) -> Optional[OrdemServicoModel]:
     """Atualiza status da OS."""
     os = buscar_ordem_por_id(db, ordem_id)
-    if os:
-        os.status = novo_status
-        os.atualizado_em = datetime.now(timezone.utc)
-        if novo_status == "concluida":
-            os.concluido_em = datetime.now(timezone.utc)
-        db.commit()
-        db.refresh(os)
+    if not os:
+        return None
+
+    # Bloqueia conclusão se ainda há passos pendentes
+    if novo_status == "concluida":
+        from src.services.passos_service import os_pode_ser_concluida
+        if not os_pode_ser_concluida(db, ordem_id):
+            raise ValueError(
+                "Não é possível concluir a OS. Todos os passos do checklist devem ser concluídos."
+            )
+
+    os.status = novo_status
+    os.atualizado_em = datetime.now(timezone.utc)
+    if novo_status == "concluida":
+        os.concluido_em = datetime.now(timezone.utc)
+    db.commit()
+    db.refresh(os)
     return os
