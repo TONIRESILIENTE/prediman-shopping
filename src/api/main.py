@@ -34,12 +34,13 @@ app.include_router(ordens.router)
 app.include_router(pops.router)
 app.include_router(auth.router)
 app.include_router(passos.router)
-
 # Servir PWA como arquivos estáticos
 app.mount("/pwa", StaticFiles(directory="src/pwa", html=True), name="pwa")
-
+# Servir fotos enviadas pelos técnicos
+app.mount("/uploads", StaticFiles(directory="/app/uploads"), name="uploads")
 
 # ─── Rotas Básicas ─────────────────────────
+
 
 @app.get("/")
 async def root():

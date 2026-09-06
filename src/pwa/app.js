@@ -190,11 +190,16 @@ function renderizarDetalhes() {
       html += '<span>' + statusIcon + '</span>';
       html += '<span style="flex:1;font-size:13px">' + p.numero_passo + '. ' + p.descricao + '</span>';
       if (!p.concluido) {
-        html += '<button class="btn btn-iniciar" style="width:auto;padding:6px 12px;font-size:11px" onclick="marcarPasso(\'' + p.id + '\', \'' + os.id + '\')">Marcar</button>';
+        html += '<button class="btn btn-iniciar" style="width:auto;padding:6px 12px;font-size:11px" onclick="enviarFoto(\'' + p.id + '\', \'' + os.id + '\')">📸 Anexar foto</button>';
       }
       html += '</div>';
-      if (p.foto_url) {
-        html += '<div style="margin-top:6px;font-size:11px;color:var(--success)">📸 Foto anexada</div>';
+            if (p.foto_url) {
+        html += '<div style="margin-top:6px">';
+        html += '<a href="' + p.foto_url + '" target="_blank">';
+        html += '<img src="' + p.foto_url + '" style="width:100%;max-width:200px;border-radius:8px;margin-top:4px" />';
+        html += '</a>';
+        html += '<div style="font-size:11px;color:var(--success)">📸 Foto anexada (toque para ampliar)</div>';
+        html += '</div>';
       }
       html += '</div>';
     });
@@ -310,7 +315,52 @@ function narrarPOP(pop) {
   window.speechSynthesis.speak(utterance);
   mostrarToast('🔊 Narrando POP...');
 }
-
+async function enviarFoto(passoId, ordemId) {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
+  input.capture = 'environment';
+  
+  input.onchange = function() {
+    if (!input.files.length) return;
+    
+    const foto = input.files[0];
+    
+    // Usa XMLHttpRequest para melhor compatibilidade mobile
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', API_URL + '/passos/' + passoId + '/foto', true);
+    xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+    
+    const formData = new FormData();
+    formData.append('foto', foto);
+    
+    xhr.onload = function() {
+      if (xhr.status === 200) {
+        const data = JSON.parse(xhr.responseText);
+        
+        // Marca o passo como concluído
+        apiFetch('/passos/' + passoId, {
+          method: 'PATCH',
+          body: JSON.stringify({ foto_url: data.foto_url }),
+        }).then(async () => {
+          await carregarPassos(ordemId);
+          renderizarDetalhes();
+          mostrarToast('✅ Passo concluído com foto!');
+        });
+      } else {
+        mostrarToast('❌ Erro ao enviar foto', true);
+      }
+    };
+    
+    xhr.onerror = function() {
+      mostrarToast('❌ Erro de conexão', true);
+    };
+    
+    xhr.send(formData);
+  };
+  
+  input.click();
+}
 document.addEventListener('DOMContentLoaded', function() {
   atualizarStatusConexao();
   
@@ -324,4 +374,6 @@ document.addEventListener('DOMContentLoaded', function() {
   } else {
     mostrarLogin();
   }
+
+  
 });

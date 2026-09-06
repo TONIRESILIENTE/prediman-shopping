@@ -1,8 +1,11 @@
 # src/api/routers/passos.py
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, UploadFile, File
 from typing import List, Optional
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
+import uuid as uuid_lib
+import os
+from datetime import datetime
 
 from src.database.connection import get_db
 from src.services.passos_service import (
@@ -88,3 +91,26 @@ async def marcar_passo(passo_id: str, body: MarcarPassoRequest, db: Session = De
 async def progresso(ordem_id: str, db: Session = Depends(get_db)):
     """Retorna o progresso de conclusão da OS."""
     return calcular_progresso(db, ordem_id)
+
+
+@router.post("/passos/{passo_id}/foto")
+async def upload_foto_passos(passo_id: str, foto: UploadFile = File(...)):
+    """
+    Recebe uma foto do celular e salva na pasta uploads/.
+    """
+    # Cria a pasta se não existir
+    UPLOAD_DIR = "/app/uploads"
+    os.makedirs(UPLOAD_DIR, exist_ok=True)
+
+    # Gera nome único para a foto
+    extensao = foto.filename.split('.')[-1] if '.' in foto.filename else 'jpg'
+    nome_arquivo = f"{passo_id}-{datetime.now().strftime('%Y%m%d%H%M%S')}.{extensao}"
+    caminho_completo = os.path.join(UPLOAD_DIR, nome_arquivo)
+
+    # Salva a foto
+    conteudo = await foto.read()
+    with open(caminho_completo, "wb") as f:
+        f.write(conteudo)
+
+    # Retorna a URL relativa
+    return {"foto_url": f"/uploads/{nome_arquivo}"}
