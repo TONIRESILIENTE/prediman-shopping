@@ -188,7 +188,7 @@ function renderizarDetalhes() {
       html += '<div style="padding:10px;margin-bottom:8px;border-radius:8px;background:' + bgColor + '">';
       html += '<div style="display:flex;align-items:center;gap:8px">';
       html += '<span>' + statusIcon + '</span>';
-      html += '<span style="flex:1;font-size:13px">' + p.numero_passo + '. ' + p.descricao + '</span>';
+           html += '<span style="flex:1;font-size:13px">' + p.numero_passo + '. ' + p.descricao.replace(/^\d+\.\s*/, '') + '</span>';
       if (!p.concluido) {
         html += '<button class="btn btn-iniciar" style="width:auto;padding:6px 12px;font-size:11px" onclick="enviarFoto(\'' + p.id + '\', \'' + os.id + '\')">📸 Anexar foto</button>';
       }
