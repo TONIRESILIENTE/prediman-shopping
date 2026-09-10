@@ -193,12 +193,15 @@ function renderizarDetalhes() {
         html += '<button class="btn btn-iniciar" style="width:auto;padding:6px 12px;font-size:11px" onclick="enviarFoto(\'' + p.id + '\', \'' + os.id + '\')">📸 Anexar foto</button>';
       }
       html += '</div>';
-            if (p.foto_url) {
+              if (p.foto_url) {
         html += '<div style="margin-top:6px">';
         html += '<a href="' + p.foto_url + '" target="_blank">';
         html += '<img src="' + p.foto_url + '" style="width:100%;max-width:200px;border-radius:8px;margin-top:4px" />';
         html += '</a>';
-        html += '<div style="font-size:11px;color:var(--success)">📸 Foto anexada (toque para ampliar)</div>';
+        html += '<div style="display:flex;align-items:center;gap:8px;margin-top:4px">';
+        html += '<span style="font-size:11px;color:var(--success)">📸 Foto anexada</span>';
+        html += '<button class="btn btn-voltar" style="width:auto;padding:4px 10px;font-size:11px" onclick="enviarFoto(\'' + p.id + '\', \'' + os.id + '\')">🔄 Trocar</button>';
+        html += '</div>';
         html += '</div>';
       }
       html += '</div>';

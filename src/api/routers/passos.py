@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 import uuid as uuid_lib
 import os
 from datetime import datetime
+from src.services.verificacao_service import verificar_capacete
 
 from src.database.connection import get_db
 from src.services.passos_service import (
@@ -114,3 +115,23 @@ async def upload_foto_passos(passo_id: str, foto: UploadFile = File(...)):
 
     # Retorna a URL relativa
     return {"foto_url": f"/uploads/{nome_arquivo}"}
+
+
+@router.post("/verificar-capacete")
+async def verificar_foto_capacete(foto: UploadFile = File(...)):
+    """
+    Recebe uma foto e verifica se contém capacete usando IA.
+    """
+    UPLOAD_DIR = "/app/uploads"
+    os.makedirs(UPLOAD_DIR, exist_ok=True)
+
+    extensao = foto.filename.split('.')[-1] if '.' in foto.filename else 'jpg'
+    nome_arquivo = f"verificacao-{datetime.now().strftime('%Y%m%d%H%M%S')}.{extensao}"
+    caminho = os.path.join(UPLOAD_DIR, nome_arquivo)
+
+    conteudo = await foto.read()
+    with open(caminho, "wb") as f:
+        f.write(conteudo)
+
+    resultado = verificar_capacete(caminho)
+    return resultado

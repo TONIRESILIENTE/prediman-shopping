@@ -12,6 +12,7 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U prediman_user -d prediman_db"]
       interval: 5s
@@ -33,6 +34,7 @@ services:
         condition: service_healthy
     volumes:
       - ./src:/app/src
+      - ./models:/app/models 
 
   simulator:
     build:
