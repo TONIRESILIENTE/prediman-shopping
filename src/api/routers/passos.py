@@ -29,6 +29,8 @@ class PassoExecucaoResponse(BaseModel):
     concluido: bool
     foto_url: Optional[str] = None
     timestamp_conclusao: Optional[str] = None
+    tipo_passo: Optional[str] = None
+    validacao_ia: Optional[str] = None
 
 
 class MarcarPassoRequest(BaseModel):
@@ -50,6 +52,8 @@ def _passo_para_response(passo) -> PassoExecucaoResponse:
         foto_url=passo.foto_url,
         timestamp_conclusao=passo.timestamp_conclusao.isoformat(
         ) if passo.timestamp_conclusao else None,
+        tipo_passo=passo.tipo_passo,
+        validacao_ia=passo.validacao_ia,
     )
 
 

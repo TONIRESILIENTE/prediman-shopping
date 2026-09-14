@@ -13,8 +13,79 @@ from sqlalchemy.orm import Session
 
 from src.database.models import PassoExecucao, OrdemServico
 
+# Mapeamento: EPI → tipo de validação IA
+MAPA_EPI_VALIDACAO = {
+    "capacete": "capacete",
+    "luva isolante": None,  # futuro
+    "luva de proteção": None,
+    "óculos de segurança": None,
+    "calçado de segurança": None,
+    "protetor auricular": None,
+    "cinto de segurança": None,
+    "calçado impermeável": None,
+    "protetor facial": None,
+    "luva térmica": None,
+    "capaceite classe b": "capacete",
+}
 
-def criar_passos_da_pop(db: Session, ordem_servico_id: str, pop_codigo: str, passos: List[str]) -> List[PassoExecucao]:
+
+def criar_passos_da_pop(db: Session, ordem_servico_id: str, pop_codigo: str,
+                        passos: List[str], epis: List[str] = None) -> List[PassoExecucao]:
+    """
+    Cria os passos de execução quando a OS é aberta.
+
+    ORDEM:
+    1. Primeiro os EPIs (obrigatórios) — com validação IA
+    2. Depois os passos do procedimento
+    """
+    criados = []
+    contador = 1
+
+    # ─── FASE 1: EPIs (obrigatórios primeiro) ───
+    if epis:
+        for epi in epis:
+            # Descobre qual validação IA aplicar
+            epi_lower = epi.lower()
+            validacao = None
+            for chave, val in MAPA_EPI_VALIDACAO.items():
+                if chave in epi_lower:
+                    validacao = val
+                    break
+
+            passo = PassoExecucao(
+                ordem_servico_id=uuid.UUID(ordem_servico_id) if isinstance(
+                    ordem_servico_id, str) else ordem_servico_id,
+                pop_codigo=pop_codigo,
+                numero_passo=contador,
+                descricao=f"🦺 EPI: {epi}",
+                concluido=False,
+                tipo_passo="epi",
+                validacao_ia=validacao,
+                validado=False,
+            )
+            db.add(passo)
+            criados.append(passo)
+            contador += 1
+
+    # ─── FASE 2: Procedimento ───
+    for descricao in passos:
+        passo = PassoExecucao(
+            ordem_servico_id=uuid.UUID(ordem_servico_id) if isinstance(
+                ordem_servico_id, str) else ordem_servico_id,
+            pop_codigo=pop_codigo,
+            numero_passo=contador,
+            descricao=descricao,
+            concluido=False,
+            tipo_passo="procedimento",
+            validacao_ia=None,
+            validado=False,
+        )
+        db.add(passo)
+        criados.append(passo)
+        contador += 1
+
+    db.commit()
+    return criados
     """
     Cria os passos de execução quando a OS é aberta.
     Cada passo da POP vira um PassoExecucao no banco.

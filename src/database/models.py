@@ -139,6 +139,9 @@ class PassoExecucao(Base):
     concluido = Column(Boolean, default=False)
     foto_url = Column(String(500), nullable=True)
     timestamp_conclusao = Column(DateTime(timezone=True), nullable=True)
+    tipo_passo = Column(String(20), default="procedimento")
+    validacao_ia = Column(String(50), nullable=True)
+    validado = Column(Boolean, default=False)
 
     """
    Tabela de execução de passos da POP.

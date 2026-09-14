@@ -318,7 +318,12 @@ function narrarPOP(pop) {
   window.speechSynthesis.speak(utterance);
   mostrarToast('🔊 Narrando POP...');
 }
+
 async function enviarFoto(passoId, ordemId) {
+  // Verifica se é um passo de EPI com validação IA
+  const passoAtual = (passosExecucao[ordemId] || []).find(p => p.id === passoId);
+  const precisaValidarIA = passoAtual && passoAtual.validacao_ia === 'capacete';
+  
   const input = document.createElement('input');
   input.type = 'file';
   input.accept = 'image/*';
@@ -328,42 +333,78 @@ async function enviarFoto(passoId, ordemId) {
     if (!input.files.length) return;
     
     const foto = input.files[0];
-    
-    // Usa XMLHttpRequest para melhor compatibilidade mobile
-    const xhr = new XMLHttpRequest();
-    xhr.open('POST', API_URL + '/passos/' + passoId + '/foto', true);
-    xhr.setRequestHeader('Authorization', 'Bearer ' + token);
-    
     const formData = new FormData();
     formData.append('foto', foto);
     
-    xhr.onload = function() {
-      if (xhr.status === 200) {
-        const data = JSON.parse(xhr.responseText);
-        
-        // Marca o passo como concluído
-        apiFetch('/passos/' + passoId, {
-          method: 'PATCH',
-          body: JSON.stringify({ foto_url: data.foto_url }),
-        }).then(async () => {
+    const xhr = new XMLHttpRequest();
+    
+    // Se for EPI de capacete, valida com IA primeiro
+    if (precisaValidarIA) {
+      xhr.open('POST', API_URL + '/verificar-capacete', true);
+      xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+      
+      xhr.onload = async function() {
+        if (xhr.status === 200) {
+          const resultado = JSON.parse(xhr.responseText);
+          
+          if (!resultado.tem_capacete) {
+            mostrarToast('❌ Capacete não detectado. Refaça a foto.', true);
+            return;
+          }
+          
+          // IA validou — agora faz upload e marca como concluído
+          mostrarToast('✅ Capacete detectado! Confiança: ' + Math.round(resultado.confianca * 100) + '%');
+          
+          // Upload da foto
+          const formDataUpload = new FormData();
+          formDataUpload.append('foto', foto);
+          
+          const xhr2 = new XMLHttpRequest();
+          xhr2.open('POST', API_URL + '/passos/' + passoId + '/foto', true);
+          xhr2.setRequestHeader('Authorization', 'Bearer ' + token);
+          
+          xhr2.onload = async function() {
+            if (xhr2.status === 200) {
+              const data = JSON.parse(xhr2.responseText);
+              await apiFetch('/passos/' + passoId, {
+                method: 'PATCH',
+                body: JSON.stringify({ foto_url: data.foto_url }),
+              });
+              await carregarPassos(ordemId);
+              renderizarDetalhes();
+              mostrarToast('✅ EPI comprovado com IA!');
+            }
+          };
+          xhr2.send(formDataUpload);
+        }
+      };
+      
+      xhr.send(formData);
+    } else {
+      // Passo normal — fluxo antigo
+      xhr.open('POST', API_URL + '/passos/' + passoId + '/foto', true);
+      xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+      
+      xhr.onload = async function() {
+        if (xhr.status === 200) {
+          const data = JSON.parse(xhr.responseText);
+          await apiFetch('/passos/' + passoId, {
+            method: 'PATCH',
+            body: JSON.stringify({ foto_url: data.foto_url }),
+          });
           await carregarPassos(ordemId);
           renderizarDetalhes();
-          mostrarToast('✅ Passo concluído com foto!');
-        });
-      } else {
-        mostrarToast('❌ Erro ao enviar foto', true);
-      }
-    };
-    
-    xhr.onerror = function() {
-      mostrarToast('❌ Erro de conexão', true);
-    };
-    
-    xhr.send(formData);
+          mostrarToast('✅ Passo concluído!');
+        }
+      };
+      
+      xhr.send(formData);
+    }
   };
   
   input.click();
 }
+
 document.addEventListener('DOMContentLoaded', function() {
   atualizarStatusConexao();
   

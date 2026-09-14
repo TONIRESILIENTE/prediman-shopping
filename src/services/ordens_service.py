@@ -161,7 +161,8 @@ def criar_ordem_servico(
     pop = buscar_pop(template["pop_codigo"]) if template.get(
         "pop_codigo") else None
     if pop:
-        criar_passos_da_pop(db, str(os.id), pop.codigo, pop.passos)
+        criar_passos_da_pop(db, str(os.id), pop.codigo, pop.passos,
+                            pop.epis)
 
     return os
 

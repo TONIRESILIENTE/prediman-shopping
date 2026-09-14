@@ -1,5 +1,5 @@
 // sw.js — Service Worker para funcionamento offline
-const CACHE_NAME = 'prediman-v1';
+const CACHE_NAME = 'prediman-v2';
 const ASSETS = [
   '/pwa/index.html',
   '/pwa/app.js',
