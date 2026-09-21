@@ -38,4 +38,4 @@ Thumbs.db
 # models/*.pkl  ← descomente se o modelo for muito grande
 
 # Logs
-*.log
+*.log*.bak
