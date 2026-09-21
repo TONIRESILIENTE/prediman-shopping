@@ -79,7 +79,11 @@ async def gerar_passos(ordem_id: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="OS não tem POP vinculado")
 
     # Cria os passos
-    passos = criar_passos_da_pop(db, ordem_id, pop.codigo, pop.passos)
+   # Cria os passos (EPIs primeiro, depois procedimento)
+    epis = getattr(pop, 'epi_obrigatorio', None) or []
+    passos = criar_passos_da_pop(
+        db, ordem_id, pop.codigo, pop.passos, epis=epis
+    )
     return {"mensagem": f"{len(passos)} passos criados"}
 
 

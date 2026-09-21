@@ -1,0 +1,13 @@
+train: ../train/images
+val: ../valid/images
+test: ../test/images
+
+nc: 1
+names: ['Gloves-Detection']
+
+roboflow:
+  workspace: parshvas-workspace-skr5a
+  project: gloves-detection-qp7vk
+  version: 3
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/parshvas-workspace-skr5a/gloves-detection-qp7vk/dataset/3

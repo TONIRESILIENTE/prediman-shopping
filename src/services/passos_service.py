@@ -16,16 +16,16 @@ from src.database.models import PassoExecucao, OrdemServico
 # Mapeamento: EPI → tipo de validação IA
 MAPA_EPI_VALIDACAO = {
     "capacete": "capacete",
-    "luva isolante": None,  # futuro
-    "luva de proteção": None,
+    "capaceite classe b": "capacete",   # (typo legado mantido)
+    "luva isolante": "luva",
+    "luva de proteção": "luva",
+    "luva térmica": "luva",
     "óculos de segurança": None,
     "calçado de segurança": None,
     "protetor auricular": None,
     "cinto de segurança": None,
     "calçado impermeável": None,
     "protetor facial": None,
-    "luva térmica": None,
-    "capaceite classe b": "capacete",
 }
 
 
