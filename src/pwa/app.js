@@ -322,7 +322,8 @@ function narrarPOP(pop) {
 async function enviarFoto(passoId, ordemId) {
   // Verifica se é um passo de EPI com validação IA
   const passoAtual = (passosExecucao[ordemId] || []).find(p => p.id === passoId);
-  const precisaValidarIA = passoAtual && passoAtual.validacao_ia === 'capacete';
+  const tipoValidacao = passoAtual ? passoAtual.validacao_ia : null;
+  const precisaValidarIA = tipoValidacao === 'capacete' || tipoValidacao === 'luva';
   
   const input = document.createElement('input');
   input.type = 'file';
@@ -338,22 +339,26 @@ async function enviarFoto(passoId, ordemId) {
     
     const xhr = new XMLHttpRequest();
     
-    // Se for EPI de capacete, valida com IA primeiro
     if (precisaValidarIA) {
-      xhr.open('POST', API_URL + '/verificar-capacete', true);
-      xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+  // Decide qual endpoint chamar baseado no tipo
+  const endpointIA = tipoValidacao === 'luva' ? '/verificar-luva' : '/verificar-capacete';
+  const chaveResultado = tipoValidacao === 'luva' ? 'tem_luva' : 'tem_capacete';
+  const nomeEPI = tipoValidacao === 'luva' ? 'Luva' : 'Capacete';
+  
+  xhr.open('POST', API_URL + endpointIA, true);
+  xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+  
+  xhr.onload = async function() {
+    if (xhr.status === 200) {
+      const resultado = JSON.parse(xhr.responseText);
       
-      xhr.onload = async function() {
-        if (xhr.status === 200) {
-          const resultado = JSON.parse(xhr.responseText);
-          
-          if (!resultado.tem_capacete) {
-            mostrarToast('❌ Capacete não detectado. Refaça a foto.', true);
-            return;
-          }
-          
-          // IA validou — agora faz upload e marca como concluído
-          mostrarToast('✅ Capacete detectado! Confiança: ' + Math.round(resultado.confianca * 100) + '%');
+      if (!resultado[chaveResultado]) {
+        mostrarToast('❌ ' + nomeEPI + ' não detectada(o). Refaça a foto.', true);
+        return;
+      }
+      
+      mostrarToast('✅ ' + nomeEPI + ' detectada(o)! Confiança: ' + Math.round(resultado.confianca * 100) + '%');
+      
           
           // Upload da foto
           const formDataUpload = new FormData();

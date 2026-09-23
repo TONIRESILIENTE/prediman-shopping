@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 import uuid as uuid_lib
 import os
 from datetime import datetime
-from src.services.verificacao_service import verificar_capacete
+from src.services.verificacao_service import verificar_capacete,  verificar_luva
 
 from src.database.connection import get_db
 from src.services.passos_service import (
@@ -80,7 +80,7 @@ async def gerar_passos(ordem_id: str, db: Session = Depends(get_db)):
 
     # Cria os passos
    # Cria os passos (EPIs primeiro, depois procedimento)
-    epis = getattr(pop, 'epi_obrigatorio', None) or []
+    epis = getattr(pop, 'epis', None) or []
     passos = criar_passos_da_pop(
         db, ordem_id, pop.codigo, pop.passos, epis=epis
     )
@@ -142,4 +142,24 @@ async def verificar_foto_capacete(foto: UploadFile = File(...)):
         f.write(conteudo)
 
     resultado = verificar_capacete(caminho)
+    return resultado
+
+
+@router.post("/verificar-luva")
+async def verificar_foto_luva(foto: UploadFile = File(...)):
+    """
+    Recebe uma foto e verifica se contém luva de proteção usando IA.
+    """
+    UPLOAD_DIR = "/app/uploads"
+    os.makedirs(UPLOAD_DIR, exist_ok=True)
+
+    extensao = foto.filename.split('.')[-1] if '.' in foto.filename else 'jpg'
+    nome_arquivo = f"verificacao-luva-{datetime.now().strftime('%Y%m%d%H%M%S')}.{extensao}"
+    caminho = os.path.join(UPLOAD_DIR, nome_arquivo)
+
+    conteudo = await foto.read()
+    with open(caminho, "wb") as f:
+        f.write(conteudo)
+
+    resultado = verificar_luva(caminho)
     return resultado
