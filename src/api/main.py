@@ -4,6 +4,7 @@
 # Registra todos os routers e middlewares.
 # ─────────────────────────────────────────────
 
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from datetime import datetime, timezone
@@ -36,8 +37,13 @@ app.include_router(auth.router)
 app.include_router(passos.router)
 # Servir PWA como arquivos estáticos
 app.mount("/pwa", StaticFiles(directory="src/pwa", html=True), name="pwa")
-# Servir fotos enviadas pelos técnicos
-app.mount("/uploads", StaticFiles(directory="/app/uploads"), name="uploads")
+
+# Diretório de uploads — configurável por variável de ambiente.
+# No Docker: UPLOAD_DIR=/app/uploads (definido no .env)
+# Sem Docker (CI, local): cai no fallback "uploads" relativo ao CWD.
+UPLOAD_DIR = os.getenv("UPLOAD_DIR", "uploads")
+os.makedirs(UPLOAD_DIR, exist_ok=True)
+app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 
 # ─── Rotas Básicas ─────────────────────────
 

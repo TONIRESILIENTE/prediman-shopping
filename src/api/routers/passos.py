@@ -21,6 +21,10 @@ from src.services.pops_service import buscar_pop
 
 router = APIRouter(prefix="/api/v1", tags=["Execução de POP"])
 
+# Diretório de uploads — mesma variável usada em main.py.
+# Fallback "uploads" (relativo) permite rodar sem Docker (CI, local).
+UPLOAD_DIR = os.getenv("UPLOAD_DIR", "uploads")
+
 
 class PassoExecucaoResponse(BaseModel):
     id: str
@@ -107,8 +111,7 @@ async def upload_foto_passos(passo_id: str, foto: UploadFile = File(...)):
     """
     Recebe uma foto do celular e salva na pasta uploads/.
     """
-    # Cria a pasta se não existir
-    UPLOAD_DIR = "/app/uploads"
+
     os.makedirs(UPLOAD_DIR, exist_ok=True)
 
     # Gera nome único para a foto
@@ -130,7 +133,7 @@ async def verificar_foto_capacete(foto: UploadFile = File(...)):
     """
     Recebe uma foto e verifica se contém capacete usando IA.
     """
-    UPLOAD_DIR = "/app/uploads"
+
     os.makedirs(UPLOAD_DIR, exist_ok=True)
 
     extensao = foto.filename.split('.')[-1] if '.' in foto.filename else 'jpg'
@@ -150,7 +153,7 @@ async def verificar_foto_luva(foto: UploadFile = File(...)):
     """
     Recebe uma foto e verifica se contém luva de proteção usando IA.
     """
-    UPLOAD_DIR = "/app/uploads"
+
     os.makedirs(UPLOAD_DIR, exist_ok=True)
 
     extensao = foto.filename.split('.')[-1] if '.' in foto.filename else 'jpg'
