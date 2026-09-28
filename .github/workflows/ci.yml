@@ -41,7 +41,7 @@ jobs:
 
     - name: Rodar migrações e testes
       env:
-        DATABASE_URL: postgresql://prediman_user:test_password@localhost:5432/prediman_test
+        DATABASE_URL: postgresql+psycopg2://prediman_user:test_password@localhost:5432/prediman_test
         SECRET_KEY: chave-teste-ci
       run: |
         python -m alembic upgrade head
