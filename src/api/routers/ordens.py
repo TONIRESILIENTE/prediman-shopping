@@ -11,8 +11,7 @@ from src.services.ordens_service import (
     buscar_ordem_por_id,
     atualizar_status,
 )
-from src.database.models import OrdemServico as OrdemServicoModel, Equipamento
-
+from src.database.models import OrdemServico as OrdemServicoModel, Equipamento,  Usuario
 router = APIRouter(prefix="/api/v1", tags=["Ordens de Serviço"])
 
 
@@ -58,17 +57,21 @@ def _os_para_response(os: OrdemServicoModel, db: Session) -> OrdemServicoRespons
 
 @router.get("/ordens", response_model=List[OrdemServicoResponse])
 async def listar_ordens_endpoint(
-    equipamento_id: Optional[str] = Query(None),
-    status: Optional[str] = Query(None),
-    db: Session = Depends(get_db),
+        equipamento_id: Optional[str] = Query(None),
+        status: Optional[str] = Query(None),
+        db: Session = Depends(get_db),
+        usuario_atual: Usuario = Depends(obter_usuario_atual),
 
 ):
-    ordens = listar_ordens(db, equipamento_id=equipamento_id, status=status)
+    ordens = listar_ordens(
+        db, equipamento_id=equipamento_id, status=status)
     return [_os_para_response(os, db) for os in ordens]
 
 
 @router.get("/ordens/{ordem_id}", response_model=OrdemServicoResponse)
-async def buscar_ordem(ordem_id: str, db: Session = Depends(get_db)):
+async def buscar_ordem(ordem_id: str,
+                       db: Session = Depends(get_db),
+                       usuario_atual: Usuario = Depends(obter_usuario_atual)):
     os = buscar_ordem_por_id(db, ordem_id)
     if not os:
         raise HTTPException(
@@ -77,7 +80,10 @@ async def buscar_ordem(ordem_id: str, db: Session = Depends(get_db)):
 
 
 @router.patch("/ordens/{ordem_id}/status", response_model=OrdemServicoResponse)
-async def atualizar_status_endpoint(ordem_id: str, body: StatusUpdateRequest, db: Session = Depends(get_db)):
+async def atualizar_status_endpoint(ordem_id: str,
+                                    body: StatusUpdateRequest,
+                                    db: Session = Depends(get_db),
+                                    usuario_atual: Usuario = Depends(obter_usuario_atual)):
     status_permitidos = ["aberta", "em_andamento", "pausada", "concluida"]
     if body.novo_status not in status_permitidos:
         raise HTTPException(
