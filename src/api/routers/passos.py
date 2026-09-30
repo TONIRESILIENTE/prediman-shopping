@@ -18,6 +18,8 @@ from src.services.passos_service import (
 )
 from src.services.ordens_service import buscar_ordem_por_id
 from src.services.pops_service import buscar_pop
+from src.api.middleware.auth import obter_usuario_atual, exigir_papel
+from src.database.models import Usuario
 
 router = APIRouter(prefix="/api/v1", tags=["Execução de POP"])
 
@@ -62,14 +64,20 @@ def _passo_para_response(passo) -> PassoExecucaoResponse:
 
 
 @router.get("/os/{ordem_id}/passos", response_model=List[PassoExecucaoResponse])
-async def listar_passos(ordem_id: str, db: Session = Depends(get_db)):
+async def listar_passos(ordem_id: str,
+                        db: Session = Depends(get_db),
+                        usuario: Usuario = Depends(obter_usuario_atual),
+                        ):
     """Lista os passos de execução de uma OS."""
     passos = listar_passos_da_os(db, ordem_id)
     return [_passo_para_response(p) for p in passos]
 
 
 @router.post("/os/{ordem_id}/passos/gerar")
-async def gerar_passos(ordem_id: str, db: Session = Depends(get_db)):
+async def gerar_passos(ordem_id: str,
+                       db: Session = Depends(get_db),
+                       usuario: Usuario = Depends(obter_usuario_atual),
+                       ):
     """Gera os passos a partir da POP vinculada à OS."""
     # Busca a OS
     os = buscar_ordem_por_id(db, ordem_id)
@@ -82,7 +90,6 @@ async def gerar_passos(ordem_id: str, db: Session = Depends(get_db)):
     if not pop:
         raise HTTPException(status_code=400, detail="OS não tem POP vinculado")
 
-    # Cria os passos
    # Cria os passos (EPIs primeiro, depois procedimento)
     epis = getattr(pop, 'epis', None) or []
     passos = criar_passos_da_pop(
@@ -92,7 +99,11 @@ async def gerar_passos(ordem_id: str, db: Session = Depends(get_db)):
 
 
 @router.patch("/passos/{passo_id}", response_model=PassoExecucaoResponse)
-async def marcar_passo(passo_id: str, body: MarcarPassoRequest, db: Session = Depends(get_db)):
+async def marcar_passo(passo_id: str,
+                       body: MarcarPassoRequest,
+                       db: Session = Depends(get_db),
+                       usuario: Usuario = Depends(obter_usuario_atual),
+                       ):
     """Marca um passo como concluído."""
     passo = marcar_passo_concluido(db, passo_id, body.foto_url)
     if not passo:
@@ -101,13 +112,20 @@ async def marcar_passo(passo_id: str, body: MarcarPassoRequest, db: Session = De
 
 
 @router.get("/os/{ordem_id}/progresso", response_model=ProgressoResponse)
-async def progresso(ordem_id: str, db: Session = Depends(get_db)):
+async def progresso(ordem_id: str,
+                    db: Session = Depends(get_db),
+                    usuario: Usuario = Depends(obter_usuario_atual),
+                    ):
     """Retorna o progresso de conclusão da OS."""
     return calcular_progresso(db, ordem_id)
 
 
 @router.post("/passos/{passo_id}/foto")
-async def upload_foto_passos(passo_id: str, foto: UploadFile = File(...)):
+async def upload_foto_passos(passo_id: str,
+                             foto: UploadFile = File(...),
+                             usuario: Usuario = Depends(
+                                 exigir_papel("tecnico", "gestor", "admin")),
+                             ):
     """
     Recebe uma foto do celular e salva na pasta uploads/.
     """
@@ -129,7 +147,10 @@ async def upload_foto_passos(passo_id: str, foto: UploadFile = File(...)):
 
 
 @router.post("/verificar-capacete")
-async def verificar_foto_capacete(foto: UploadFile = File(...)):
+async def verificar_foto_capacete(foto: UploadFile = File(...),
+                                  usuario: Usuario = Depends(
+                                      exigir_papel("tecnico", "gestor", "admin")),
+                                  ):
     """
     Recebe uma foto e verifica se contém capacete usando IA.
     """
@@ -149,7 +170,10 @@ async def verificar_foto_capacete(foto: UploadFile = File(...)):
 
 
 @router.post("/verificar-luva")
-async def verificar_foto_luva(foto: UploadFile = File(...)):
+async def verificar_foto_luva(foto: UploadFile = File(...),
+                              usuario: Usuario = Depends(
+                                  exigir_papel("tecnico", "gestor", "admin")),
+                              ):
     """
     Recebe uma foto e verifica se contém luva de proteção usando IA.
     """

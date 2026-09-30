@@ -62,6 +62,6 @@ def exigir_papel(*papeis: str):
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail=f"Acesso negado. Papéis permitidos: {papeis}",
             )
-    return usuario
+        return usuario
 
     return verificador_papel
