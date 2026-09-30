@@ -7,6 +7,7 @@ from fastapi import APIRouter, HTTPException, status, Query, Depends
 from typing import List, Optional
 from pydantic import BaseModel
 from src.api.middleware.auth import obter_usuario_atual
+from src.database.models import Usuario
 
 
 from src.services.pops_service import buscar_pop, listar_pops, POP
@@ -53,6 +54,7 @@ async def listar_pops_endpoint(
         None,
         description="Filtrar por tipo: chiller, subestacao, bomba, iluminacao",
     ),
+    usuario: Usuario = Depends(obter_usuario_atual),
 
 ):
     pops = listar_pops(equipamento_tipo=equipamento_tipo)
@@ -65,7 +67,9 @@ async def listar_pops_endpoint(
     summary="Buscar POP por código",
     description="Retorna o POP completo (passos, EPIs, ferramentas, riscos) pelo código.",
 )
-async def buscar_pop_endpoint(codigo: str):
+async def buscar_pop_endpoint(codigo: str,
+                              usuario: Usuario = Depends(obter_usuario_atual),
+                              ):
     pop = buscar_pop(codigo)
     if not pop:
         raise HTTPException(

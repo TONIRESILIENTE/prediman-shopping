@@ -51,17 +51,17 @@ def exigir_papel(*papeis: str):
 
     Uso:
         @app.get("/admin")
-        async def rota_admin(usuario: dict = Depends(exigir_papel("admin", "gestor"))):
+        async def rota_admin(usuario: Usuario = Depends(exigir_papel("admin", "gestor"))):
             ...
 
     POR QUÊ: Factory pattern — cada rota define quais papéis pode acessar.
     """
-    async def verificador_papel(usuario: dict = Depends(obter_usuario_atual)) -> dict:
-        if usuario["papel"] not in papeis:
+    async def verificador_papel(usuario: Usuario = Depends(obter_usuario_atual)) -> Usuario:
+        if usuario.papel not in papeis:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail=f"Acesso negado. Papéis permitidos: {papeis}",
             )
-        return usuario
+    return usuario
 
     return verificador_papel

@@ -7,6 +7,7 @@ from fastapi import APIRouter, Depends
 from typing import List
 from src.api.schemas.medicao import EquipamentoResponse
 from src.api.middleware.auth import obter_usuario_atual
+from src.database.models import Usuario
 
 router = APIRouter(prefix="/api/v1", tags=["Equipamentos"])
 
@@ -63,6 +64,8 @@ EQUIPAMENTOS_CADASTRO = [
     summary="Listar equipamentos",
     description="Retorna a lista de todos os equipamentos monitorados pelo sistema.",
 )
-async def listar_equipamentos():
+async def listar_equipamentos(
+    usuario: Usuario = Depends(obter_usuario_atual),
+):
     """Retorna todos os equipamentos cadastrados."""
     return [EquipamentoResponse(**eq) for eq in EQUIPAMENTOS_CADASTRO]
