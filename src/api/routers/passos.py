@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 import uuid as uuid_lib
 import os
 from datetime import datetime
-from src.services.verificacao_service import verificar_capacete,  verificar_luva
+from src.services.verificacao_service import verificar_capacete, verificar_luva, verificar_oculos
 
 from src.database.connection import get_db
 from src.services.passos_service import (
@@ -189,4 +189,26 @@ async def verificar_foto_luva(foto: UploadFile = File(...),
         f.write(conteudo)
 
     resultado = verificar_luva(caminho)
+    return resultado
+
+
+@router.post("/verificar-oculos")
+async def verificar_foto_oculos(
+    foto: UploadFile = File(...),
+    usuario: Usuario = Depends(exigir_papel("tecnico", "gestor", "admin")),
+):
+    """
+    Recebe uma foto e verifica se contém óculos de proteção usando IA.
+    """
+    os.makedirs(UPLOAD_DIR, exist_ok=True)
+
+    extensao = foto.filename.split('.')[-1] if '.' in foto.filename else 'jpg'
+    nome_arquivo = f"verificacao-oculos-{datetime.now().strftime('%Y%m%d%H%M%S')}.{extensao}"
+    caminho = os.path.join(UPLOAD_DIR, nome_arquivo)
+
+    conteudo = await foto.read()
+    with open(caminho, "wb") as f:
+        f.write(conteudo)
+
+    resultado = verificar_oculos(caminho)
     return resultado

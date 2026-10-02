@@ -20,7 +20,7 @@ MAPA_EPI_VALIDACAO = {
     "luva isolante": "luva",
     "luva de proteção": "luva",
     "luva térmica": "luva",
-    "óculos de segurança": None,
+    "óculos de segurança": "oculos",
     "calçado de segurança": None,
     "protetor auricular": None,
     "cinto de segurança": None,

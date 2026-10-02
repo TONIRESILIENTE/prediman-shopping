@@ -38,6 +38,11 @@ _CONFIG: Dict[str, Dict[str, str]] = {
         "caminho": "/app/models/luva_model.pt",
         "classe": "Gloves-Detection",  # exatamente como treinado
     },
+    "oculos": {
+        "env_var": "YOLO_MODEL_OCULOS_PATH",
+        "caminho": "/app/models/oculos_model.pt",
+        "classe": "glasses",  # classe do dataset safety-goggles
+    },
 }
 
 
@@ -151,6 +156,21 @@ def verificar_luva(caminho_foto: str) -> Dict:
     resultado = _verificar_epi(caminho_foto, "luva")
     return {
         "tem_luva": resultado["tem_epi"],
+        "confianca": resultado["confianca"],
+        "detalhes": resultado["detalhes"],
+    }
+
+
+def verificar_oculos(caminho_foto: str) -> Dict:
+    """
+    Verifica se uma foto contém óculos de proteção.
+
+    Mesma estrutura de verificar_capacete() e verificar_luva(),
+    para manter consistência em toda a API pública.
+    """
+    resultado = _verificar_epi(caminho_foto, "oculos")
+    return {
+        "tem_oculos": resultado["tem_epi"],
         "confianca": resultado["confianca"],
         "detalhes": resultado["detalhes"],
     }

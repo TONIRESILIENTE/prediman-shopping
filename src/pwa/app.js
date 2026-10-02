@@ -323,7 +323,16 @@ async function enviarFoto(passoId, ordemId) {
   // Verifica se é um passo de EPI com validação IA
   const passoAtual = (passosExecucao[ordemId] || []).find(p => p.id === passoId);
   const tipoValidacao = passoAtual ? passoAtual.validacao_ia : null;
-  const precisaValidarIA = tipoValidacao === 'capacete' || tipoValidacao === 'luva';
+
+  // Mapa de EPIs com validação IA.
+  // Para adicionar um novo EPI no futuro, basta incluir uma linha aqui.
+  const MAPA_IA = {
+    'capacete': { endpoint: '/verificar-capacete', chave: 'tem_capacete', nome: 'Capacete' },
+    'luva':     { endpoint: '/verificar-luva',     chave: 'tem_luva',     nome: 'Luva' },
+    'oculos':   { endpoint: '/verificar-oculos',   chave: 'tem_oculos',   nome: 'Óculos' },
+  };
+  const configIA = tipoValidacao ? MAPA_IA[tipoValidacao] : null;
+  const precisaValidarIA = configIA !== null && configIA !== undefined;
   
   const input = document.createElement('input');
   input.type = 'file';
@@ -340,10 +349,10 @@ async function enviarFoto(passoId, ordemId) {
     const xhr = new XMLHttpRequest();
     
     if (precisaValidarIA) {
-  // Decide qual endpoint chamar baseado no tipo
-  const endpointIA = tipoValidacao === 'luva' ? '/verificar-luva' : '/verificar-capacete';
-  const chaveResultado = tipoValidacao === 'luva' ? 'tem_luva' : 'tem_capacete';
-  const nomeEPI = tipoValidacao === 'luva' ? 'Luva' : 'Capacete';
+            // Usa a configuração do MAPA_IA (definida no topo da função)
+      const endpointIA = configIA.endpoint;
+      const chaveResultado = configIA.chave;
+      const nomeEPI = configIA.nome;
   
   xhr.open('POST', API_URL + endpointIA, true);
   xhr.setRequestHeader('Authorization', 'Bearer ' + token);
